@@ -1,0 +1,53 @@
+# Устанавливаем версию синтаксиса docker-compose
+version: '3'
+# Описываем сервисы
+services:
+  # Сервис с API
+  api:
+    # Перезапускать сервис всегда
+    restart: always
+    # Собирать контейнер из Dockerfile в папке api
+    build: ./api
+    # Открываем порт 5555 и перенаправляем на порт 5000 внутри контейнера
+    ports:
+      - 5555:5000
+    # Зависимости сервиса
+    depends_on:
+      - mysql
+  # Сервис с фронтендом
+  frontend:
+    # Перезапускать сервис всегда
+    restart: always
+    # Собирать контейнер из Dockerfile в папке frontend
+    build: ./frontend
+    # Открываем порт 8954 и перенаправляем на порт 8954 внутри контейнера
+    ports:
+      - 8954:8954
+  # Сервис с базой данных
+  mysql:
+    # Перезапускать сервис всегда
+    restart: always
+    # Используем готовый образ mysql
+    image: mysql
+    # Переменные окружения
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=time_db
+    # Сохраняем данные в том
+    volumes:
+      - mysql_data:/var/lib/mysql
+  # Сервис с админкой для базы данных
+  adminer:
+    # Перезапускать сервис всегда
+    restart: always
+    # Используем готовый образ adminer
+    image: adminer
+    # Открываем порт 8888 и перенаправляем на порт 8080 внутри контейнера
+    ports:
+      - 8888:8080
+    # Зависимости сервиса
+    depends_on:
+      - mysql
+# Описываем тома
+volumes:
+  mysql_data:
